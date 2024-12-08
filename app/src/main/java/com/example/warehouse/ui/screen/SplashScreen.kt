@@ -20,20 +20,18 @@ fun SplashScreen(onNavigateToMain: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(Color.White.value)), // 启动背景色
+            .background(Color(Color.White.value)),
         contentAlignment = Alignment.Center
     ) {
-        // 显示应用的 Logo 或动画
         Image(
-            painter = painterResource(id = R.drawable.ic_logo), // 替换为你的资源
+            painter = painterResource(id = R.drawable.ic_logo),
             contentDescription = "App Logo",
             modifier = Modifier.size(150.dp)
         )
     }
 
-    // 在延迟后调用导航回调
     LaunchedEffect(Unit) {
-        delay(1000) // 延迟 2 秒
+        delay(1000)
         onNavigateToMain()
     }
 }
