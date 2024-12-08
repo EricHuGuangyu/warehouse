@@ -66,7 +66,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.play.services.mlkit.barcode.scanning)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -84,22 +84,19 @@ dependencies {
     kapt(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
-    //Camera for BarCode
-//    implementation(libs.camerax.core)
-//    implementation(libs.camerax.lifecycle)
-//    implementation(libs.camerax.view)
-//    implementation(libs.camerax.camera2)
-//    implementation(libs.mlkit.barcode)
+    //DataStore
+    implementation(libs.datastore.preferences)
 
-    //coil
-    implementation("io.coil-kt:coil-compose:2.1.0")
+    //Coil
+    implementation(libs.coil.compose)
 
-    // Camerax implementation
-    val cameraxVersion = "1.3.1"
-    implementation ("androidx.camera:camera-core:${cameraxVersion}")
-    implementation ("androidx.camera:camera-camera2:${cameraxVersion}")
-    implementation ("androidx.camera:camera-view:${cameraxVersion}")
-    implementation ("androidx.camera:camera-lifecycle:$cameraxVersion")
+    //Camera
+    implementation(libs.camerax.core)
+    implementation(libs.camerax.camera2)
+    implementation(libs.camerax.view)
+    implementation(libs.camerax.lifecycle)
+
+    //BarCode Scan
     implementation(libs.mlkit.barcode)
+    implementation(libs.play.services.mlkit.barcode.scanning)
 }

@@ -1,13 +1,14 @@
 package com.example.warehouse.viewmodel
 
 import android.content.Context
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.warehouse.data.local.ProductDetail
-import com.example.warehouse.data.utils.DataStoreUtils
 import com.example.warehouse.data.remote.ApiService
+import com.example.warehouse.data.utils.DataStoreUtils
+import com.example.warehouse.viewmodel.common.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
@@ -19,45 +20,35 @@ class ProductDetailViewModel @Inject constructor(
     private val apiService: ApiService
 ) : ViewModel() {
 
-    // State for loading, error, and product details
-    private val _productDetail = mutableStateOf<ProductDetail?>(null)
-    val productDetail: State<ProductDetail?> = _productDetail
-
-    private val _isLoading = mutableStateOf(false)
-    val isLoading: State<Boolean> = _isLoading
-
-    private val _error = mutableStateOf<String?>(null)
-    val error: State<String?> = _error
+    private val _uiState = MutableLiveData<NetworkResult<ProductDetail>>()
+    val uiState: LiveData<NetworkResult<ProductDetail>> = _uiState
 
     fun getProductDetails(barCode: String) {
-        _isLoading.value = true
-        _error.value = null
+        _uiState.value = NetworkResult.Loading
 
-        // Use launch to call suspend functions inside viewModelScope
         viewModelScope.launch {
             try {
                 // Get UserID from DataStore
-                val userId = DataStoreUtils.getUserId(context) // Make sure context is available here
+                val userId = DataStoreUtils.getUserId(context)
 
                 // Prepare parameters for the API call
                 val paramMap = hashMapOf<String, String>(
                     "BarCode" to barCode,
-//                    "MachineID" to NetworkConfig.MACHINE_ID,
-//                    "UserID" to (userId ?: ""), // Use empty string if UserID is null
-//                    "Branch" to NetworkConfig.BRANCH_ID
+                    // "MachineID" to NetworkConfig.MACHINE_ID,
+                    // "UserID" to (userId ?: ""), // Use empty string if UserID is null
+                    // "Branch" to NetworkConfig.BRANCH_ID
                 )
+
                 println("apiService getProductDetail")
-                // Make the network call
                 val response = apiService.getProductDetail(paramMap)
-                _productDetail.value = response
+                _uiState.value = NetworkResult.Success(response)
                 println("apiService response: $response")
 
             } catch (e: Exception) {
-                _error.value = "Error: ${e.message}"
-            } finally {
-                _isLoading.value = false
+                _uiState.value = NetworkResult.Error("${e.message}")
             }
         }
     }
+
 
 }

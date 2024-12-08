@@ -31,12 +31,8 @@ class MainActivity : ComponentActivity() {
                 MainApp()
             }
         }
-    }
 
-    override fun onResume() {
-        super.onResume()
         mainViewModel.getUserId(this)
-
         mainViewModel.userId.observe(this) { userId ->
             if (userId != null) {
                 // User ID retrieved from DataStore or fetched from network
