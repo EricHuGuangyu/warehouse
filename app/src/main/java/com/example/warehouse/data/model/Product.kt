@@ -1,0 +1,53 @@
+package com.example.warehouse.data.model
+
+data class Product(
+	val productName: String = "",
+	val productKey: String = "",
+	val priceInfo: PriceInfo = PriceInfo(17.0f),
+	val imageGroups: List<ImageGroups> = emptyList(),
+	val productImageUrl: String = "",
+	val productBarcode: String = "",
+	val productSet: Boolean = false,
+	val brandCode: String = "",
+	val brandDescription: String = "",
+	val inventory: Inventory = Inventory(false,false,false,7),
+	val promotions: List<Promotions> = emptyList(),
+	val productId: String = "",
+	val categoryId: String = "",
+	val productDescription: String = "",
+	val shippingSize: String = "",
+	val isOversized: Boolean = false,
+	val manufacturer: String = "",
+	val manufacturerSku: String = "",
+	val soldOnline: String = "",
+	val clickAndCollect: String = "",
+	val isClickAndCollect: Boolean = false,
+	val isDigital: Boolean = false,
+	val isGiftcard: Boolean = false,
+	val isEssentialItem: Boolean = false,
+	val subClassId: String = "",
+	val deliveryTime: String = "",
+	val isMarketPlace: Boolean = false,
+	val mdmProductId: String = ""
+)
+
+//data class Product(
+//	val class0: String?,
+//	val price: Price?,
+//	val barcode: String?,
+//	val itemDescription: String?,
+//	val deptID: String?,
+//	val subClass: String?,
+//	val class0ID: String?,
+//	val subDeptID: String?,
+//	val description: String?,
+//	val branchPrice: String?,
+//	val itemCode: String?,
+//	val subDept: String?,
+//	val classID: String?,
+//	val imageURL: String?,
+//	val dept: String?,
+//	val subClassID: String?,
+//	val `class`: String?,
+//	val productKey: String?
+//)

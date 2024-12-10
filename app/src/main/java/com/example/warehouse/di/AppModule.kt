@@ -7,13 +7,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
+import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
 import javax.inject.Singleton
-import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -35,14 +33,11 @@ object AppModule {
     fun provideOkHttpClient(): OkHttpClient {
         val builder = OkHttpClient.Builder()
         builder.addInterceptor(
-            object : Interceptor {
-                @Throws(IOException::class)
-                override fun intercept(chain: Interceptor.Chain): Response {
-                    val request: Request = chain.request().newBuilder()
-                        .addHeader("Ocp-Apim-Subscription-Key", NetworkConfig.SUBSCRIPTION_KEY)
-                        .build()
-                    return chain.proceed(request)
-                }
+            Interceptor { chain ->
+                val request: Request = chain.request().newBuilder()
+                    .addHeader("Ocp-Apim-Subscription-Key", NetworkConfig.SUBSCRIPTION_KEY)
+                    .build()
+                chain.proceed(request)
             }
         )
         return builder.build()

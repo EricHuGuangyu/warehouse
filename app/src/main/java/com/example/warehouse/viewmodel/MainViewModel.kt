@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.warehouse.data.repository.UserRepository
+import com.example.warehouse.data.repository.MockUserRepository
 import com.example.warehouse.data.utils.DataStoreUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -14,10 +14,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: MockUserRepository
 ) : ViewModel() {
 
-    private val _userId = MutableLiveData<String?>()
+    val _userId = MutableLiveData<String?>()
     val userId: LiveData<String?> get() = _userId
 
     fun getUserId(context: Context) {
@@ -26,9 +26,8 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val userId = DataStoreUtils.getUserId(context)
             if (userId == null) {
-                Log.d("UserId", "User ID is null, fetching new one.")
                 val user = userRepository.fetchNewUserId()
-                user?.userID?.let {
+                user.userID?.let {
                     DataStoreUtils.putUserId(context, it)
                     _userId.postValue(it)
                 } ?: run {

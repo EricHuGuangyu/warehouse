@@ -38,30 +38,52 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.warehouse.data.local.ProductDetail
-import com.example.warehouse.viewmodel.ProductDetailViewModel
+import com.example.warehouse.data.model.PriceInfo
+import com.example.warehouse.data.model.Product
+import com.example.warehouse.viewmodel.SearchViewModel
 import com.example.warehouse.viewmodel.common.NetworkResult
 
 @Composable
-fun ProductDetailsScreen(barCode: String) {
+fun ProductDetailsScreen(barCode: String, keyWord: String) {
 
-    val viewModel: ProductDetailViewModel = hiltViewModel()
-    val uiState by viewModel.uiState.observeAsState()
+    //val viewModel: ProductDetailViewModel = hiltViewModel()
+    val searchViewModel: SearchViewModel = hiltViewModel()
+    val uiState by searchViewModel.uiState.observeAsState()
+    val cachedResults = searchViewModel.cachedResults.value
 
     LaunchedEffect(barCode) {
-        viewModel.getProductDetails(barCode)
+        searchViewModel.loadSearchResults(keyWord, isLoadMore = false)
+        //viewModel.getProductDetails(barCode)
     }
 
     when (uiState) {
-        is NetworkResult.Loading -> Text("Loading...")
+        is NetworkResult.Loading -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text("Loading...")
+            }
+        }
+
         is NetworkResult.Success -> {
-            val productDetail = (uiState as NetworkResult.Success<ProductDetail>).data
+            println("barCode: $barCode")
+            val productDetail = cachedResults.find { it.productBarcode == barCode } ?: Product(
+                productName = "" +
+                        "Guess How Much I Love You Board Book by Sam McBratney",
+                productImageUrl = "https://okapi.office-supplies.co.nz/dw/image/v2/BDMG_DEV/on/" +
+                        "demandware.static/-/Sites-twl-master-catalog/default/dw213b3b73/images/hi-res/BD/6D/R2001764_00.jpg",
+                priceInfo = PriceInfo(price = 17.0f)
+            )
+            //(uiState as NetworkResult.Success<ProductDetail>).data
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
+                    .padding(top = 16.dp)
             ) {
-                val imageUrl = productDetail.product?.imageURL
+                val imageUrl = productDetail.productImageUrl
                 Image(
                     painter = rememberAsyncImagePainter(imageUrl),
                     contentDescription = "Product Image",
@@ -69,18 +91,19 @@ fun ProductDetailsScreen(barCode: String) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                productDetail.product?.description?.let {
-                    Text(
-                        it, fontSize = 18.sp, fontWeight = FontWeight.Bold
-                    )
-                }
+                Text(
+                    productDetail.productName, fontSize = 18.sp, fontWeight = FontWeight.Bold
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
-                productDetail.product?.branchPrice?.let {
-                    Text(
-                        it, fontSize = 20.sp, color = Color(0xFFEB002B), fontWeight = FontWeight.Bold
-                    )
-                }
+
+                Text(
+                    "$" + productDetail.priceInfo.price.toString(),
+                    fontSize = 20.sp,
+                    color = Color(0xFFEB002B),
+                    fontWeight = FontWeight.Bold
+                )
+
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     modifier = Modifier.fillMaxSize(),
@@ -100,9 +123,9 @@ fun ProductDetailsScreen(barCode: String) {
                         Text("ADD TO CART")
                     }
                 }
-
             }
         }
+
         is NetworkResult.Error -> {
             val error = (uiState as NetworkResult.Error).message
             Box(
@@ -112,6 +135,7 @@ fun ProductDetailsScreen(barCode: String) {
                 Text("No results found for \"$barCode\" \n Error: $error")
             }
         }
+
         else -> {}
     }
 }
@@ -176,5 +200,5 @@ fun NumberInputField(
 @Preview(showBackground = true)
 @Composable
 fun ProductDetailsScreenPreview() {
-    ProductDetailsScreen("navController = navController")
+    //ProductDetailsScreen("navController = navController",Product(priceInfo = ))
 }

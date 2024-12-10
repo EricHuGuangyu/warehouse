@@ -7,6 +7,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigator
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -17,6 +21,7 @@ import com.example.warehouse.ui.screen.SearchResultsScreen
 import com.example.warehouse.ui.screen.SplashScreen
 import com.example.warehouse.ui.theme.WarehouseTheme
 import com.example.warehouse.viewmodel.MainViewModel
+import com.example.warehouse.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -58,12 +63,25 @@ fun MainApp() {
         composable("home") { HomeScreen(navController) }
         composable("scanner") { BarcodeScannerScreen(navController) }
         composable("searchResults/{keyword}") { backStackEntry ->
-            val keyword = backStackEntry.arguments?.getString("keyword") ?: ""
+            val keyword = backStackEntry.arguments?.getString("keyword").orEmpty()
             SearchResultsScreen(navController, keyword)
         }
-        composable("productDetails/{barCode}") { backStackEntry ->
-            val barCode = backStackEntry.arguments?.getString("barCode") ?: ""
-            ProductDetailsScreen(barCode)
+        composable("productDetails/{barCode}/{keyWord}") { backStackEntry ->
+            val barCode = backStackEntry.arguments?.getString("barCode").orEmpty()
+            val keyWord = backStackEntry.arguments?.getString("keyWord").orEmpty()
+            ProductDetailsScreen(barCode,keyWord)
         }
+    }
+}
+
+fun NavController.navigate(
+    route: String,
+    args: Bundle,
+    navOptions: NavOptions? = null,
+    navigatorExtras: Navigator.Extras? = null
+) {
+    val nodeId = graph.findNode(route = route)?.id
+    if (nodeId != null) {
+        navigate(nodeId, args, navOptions, navigatorExtras)
     }
 }

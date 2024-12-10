@@ -1,7 +1,6 @@
 package com.example.warehouse.ui.screen
 
 import android.util.Log
-import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
@@ -57,9 +56,7 @@ fun ScannerOverlay(cameraControl: CameraControl) {
     // Dynamically control the animation of the flashing line
     val infiniteTransition = rememberInfiniteTransition(label = "")
     val lineOffsetY by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
+        initialValue = 0f, targetValue = 1f, animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 1000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         ), label = ""
@@ -71,8 +68,7 @@ fun ScannerOverlay(cameraControl: CameraControl) {
         // Semi-transparent background
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawRect(
-                color = Color.Black.copy(alpha = 0.5f),
-                size = size
+                color = Color.Black.copy(alpha = 0.5f), size = size
             )
         }
 
@@ -91,8 +87,7 @@ fun ScannerOverlay(cameraControl: CameraControl) {
             onClick = {
                 isFlashOn = !isFlashOn
                 cameraControl.enableTorch(isFlashOn) // Control flashlight
-            },
-            modifier = Modifier
+            }, modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = 16.dp, end = 16.dp)
         ) {
@@ -117,28 +112,21 @@ fun ScannerOverlay(cameraControl: CameraControl) {
 
             // Clear the middle area to make the scan frame transparent
             drawRect(
-                color = Color.Transparent,
-                topLeft = androidx.compose.ui.geometry.Offset(
-                    x = centerX - frameWidth / 2,
-                    y = centerY - frameHeight / 2
-                ),
-                size = androidx.compose.ui.geometry.Size(
-                    width = frameWidth,
-                    height = frameHeight
-                ),
-                blendMode = androidx.compose.ui.graphics.BlendMode.Clear
+                color = Color.Transparent, topLeft = androidx.compose.ui.geometry.Offset(
+                    x = centerX - frameWidth / 2, y = centerY - frameHeight / 2
+                ), size = androidx.compose.ui.geometry.Size(
+                    width = frameWidth, height = frameHeight
+                ), blendMode = androidx.compose.ui.graphics.BlendMode.Clear
             )
 
             // Draw the corners of the scan frame
             val cornerLength = 30.dp.toPx()
             val cornerStrokeWidth = 4.dp.toPx()
             val rectTopLeft = androidx.compose.ui.geometry.Offset(
-                x = centerX - frameWidth / 2,
-                y = centerY - frameHeight / 2
+                x = centerX - frameWidth / 2, y = centerY - frameHeight / 2
             )
             val rectBottomRight = androidx.compose.ui.geometry.Offset(
-                x = centerX + frameWidth / 2,
-                y = centerY + frameHeight / 2
+                x = centerX + frameWidth / 2, y = centerY + frameHeight / 2
             )
 
             // Top-left corner
@@ -200,16 +188,11 @@ fun ScannerOverlay(cameraControl: CameraControl) {
             // Dynamically draw the flashing line in the middle of the scan frame
             val lineY = centerY - frameHeight / 2 + (frameHeight * lineOffsetY)
             drawLine(
-                color = Color.Red,
-                start = androidx.compose.ui.geometry.Offset(
-                    x = centerX - frameWidth / 2,
-                    y = lineY
-                ),
-                end = androidx.compose.ui.geometry.Offset(
-                    x = centerX + frameWidth / 2,
-                    y = lineY
-                ),
-                strokeWidth = 2.dp.toPx()
+                color = Color.Red, start = androidx.compose.ui.geometry.Offset(
+                    x = centerX - frameWidth / 2, y = lineY
+                ), end = androidx.compose.ui.geometry.Offset(
+                    x = centerX + frameWidth / 2, y = lineY
+                ), strokeWidth = 2.dp.toPx()
             )
         }
     }
@@ -235,9 +218,7 @@ fun BarcodeScannerScreen(navController: NavHostController) {
                 it.setSurfaceProvider(previewView.surfaceProvider)
             }
             val camera = cameraProvider.bindToLifecycle(
-                lifecycleOwner,
-                cameraSelector,
-                preview
+                lifecycleOwner, cameraSelector, preview
             )
 
             cameraControl = camera.cameraControl
@@ -245,8 +226,7 @@ fun BarcodeScannerScreen(navController: NavHostController) {
             // Set up image analysis for barcode scanning
             val barcodeScanner = BarcodeScanning.getClient()
             val imageAnalysis = ImageAnalysis.Builder()
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .build()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build()
                 .also { analysis ->
                     analysis.setAnalyzer(cameraExecutor) { imageProxy ->
                         processImageProxy(barcodeScanner, imageProxy, navController)
@@ -255,12 +235,9 @@ fun BarcodeScannerScreen(navController: NavHostController) {
 
             // Bind camera to lifecycle
             try {
-                cameraProvider.unbindAll()  // Unbind any previous camera use
+                cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    cameraSelector,
-                    preview,
-                    imageAnalysis
+                    lifecycleOwner, cameraSelector, preview, imageAnalysis
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -269,12 +246,10 @@ fun BarcodeScannerScreen(navController: NavHostController) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Display PreviewView in Compose UI
         AndroidView(
-            factory = { previewView },
-            modifier = Modifier.fillMaxSize()
+            factory = { previewView }, modifier = Modifier.fillMaxSize()
         )
-        //    // Draw Semi-transparent
+        // Draw Semi-transparent
         cameraControl?.let { ScannerOverlay(it) }
     }
 
@@ -289,37 +264,33 @@ fun BarcodeScannerScreen(navController: NavHostController) {
 
 @OptIn(ExperimentalGetImage::class)
 fun processImageProxy(
-    barcodeScanner: BarcodeScanner,
-    imageProxy: ImageProxy,
-    navController: NavHostController
+    barcodeScanner: BarcodeScanner, imageProxy: ImageProxy, navController: NavHostController
 ) {
     val mediaImage = imageProxy.image ?: return
     val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
 
     // Process the barcode on the background thread
-    barcodeScanner.process(image)
-        .addOnSuccessListener { barcodes ->
-            if (barcodes.isNotEmpty()) {
-                val barcode = barcodes[0].rawValue
-                if (barcode != null) {
-                    imageProxy.close()
-                    GlobalScope.launch(Dispatchers.Main) {
-                        navController.navigate("productDetails/$barcode") {
-                            // Pop the current screen off the back stack, keeping the calling screen
-                            popUpTo(navController.currentBackStackEntry?.destination?.route ?: "") {
-                                inclusive = false
-                            }
-                            launchSingleTop = true
+    barcodeScanner.process(image).addOnSuccessListener { barcodes ->
+        if (barcodes.isNotEmpty()) {
+            val barcode = barcodes[0].rawValue
+            if (barcode != null) {
+                imageProxy.close()
+                GlobalScope.launch(Dispatchers.Main) {
+                    val keyWord = "Book"
+                    navController.navigate("productDetails/$barcode/${keyWord}") {
+                        // Pop the current screen off the back stack, keeping the calling screen
+                        popUpTo(navController.currentBackStackEntry?.destination?.route ?: "") {
+                            inclusive = false
                         }
+                        launchSingleTop = true
                     }
                 }
             }
         }
-        .addOnFailureListener {
-            Log.e("BarcodeScanner", "Barcode scanning failed: ${it.message}")
-            imageProxy.close()
-        }
-        .addOnCompleteListener {
-            imageProxy.close()
-        }
+    }.addOnFailureListener {
+        Log.e("BarcodeScanner", "Barcode scanning failed: ${it.message}")
+        imageProxy.close()
+    }.addOnCompleteListener {
+        imageProxy.close()
+    }
 }

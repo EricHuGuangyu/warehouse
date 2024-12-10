@@ -1,4 +1,4 @@
-package com.example.warehouse.data.local
+package com.example.warehouse.data.model
 
 data class SearchResultItem(
     val description: String?,

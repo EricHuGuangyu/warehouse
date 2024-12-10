@@ -1,11 +1,12 @@
 package com.example.warehouse.viewmodel
 
 import android.content.Context
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.warehouse.data.local.SearchResultItem
+import com.example.warehouse.data.model.Product
 import com.example.warehouse.data.remote.ApiService
 import com.example.warehouse.data.remote.NetworkConfig
 import com.example.warehouse.data.utils.DataStoreUtils
@@ -21,14 +22,20 @@ class SearchViewModel @Inject constructor(
     private val apiService: ApiService
 ) : ViewModel() {
 
-    private val _uiState = MutableLiveData<NetworkResult<List<SearchResultItem>>>()
-    val uiState: LiveData<NetworkResult<List<SearchResultItem>>> = _uiState
+    private val _uiState = MutableLiveData<NetworkResult<List<Product>>>()
+    val uiState: LiveData<NetworkResult<List<Product>>> = _uiState
 
     private var currentStartIndex = 0
     private val itemsPerPage = 20
+    val cachedResults = mutableStateOf<List<Product>>(emptyList())
+    val isLoadingMore = mutableStateOf(false)
 
-    fun loadSearchResults(keyword: String) {
-        _uiState.value = NetworkResult.Loading
+    fun loadSearchResults(keyword: String, isLoadMore: Boolean) {
+        if (isLoadMore) {
+            isLoadingMore.value = true
+        } else {
+            _uiState.value = NetworkResult.Loading
+        }
         viewModelScope.launch {
             try {
                 val paramsMap = hashMapOf(
@@ -39,18 +46,16 @@ class SearchViewModel @Inject constructor(
                     "Start" to currentStartIndex.toString(),
                     "Limit" to itemsPerPage.toString()
                 )
-                println("Search keyword: $keyword")
                 val response = apiService.getSearchResult(paramsMap)
 
                 currentStartIndex += itemsPerPage
-                val currentResults = (_uiState.value as NetworkResult.Success).data
-
-                _uiState.value = NetworkResult.Success(
-                    data = currentResults + (response.results ?: emptyList())
-                )
-
+                val newResults = response.products
+                cachedResults.value += newResults
+                _uiState.value = NetworkResult.Success(data = cachedResults.value)
             } catch (e: Exception) {
                 _uiState.value = NetworkResult.Error("${e.message}")
+            } finally {
+                isLoadingMore.value = false
             }
         }
     }

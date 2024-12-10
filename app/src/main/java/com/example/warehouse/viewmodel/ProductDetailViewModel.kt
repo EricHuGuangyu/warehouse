@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.warehouse.data.local.ProductDetail
+import com.example.warehouse.data.model.ProductDetail
 import com.example.warehouse.data.remote.ApiService
 import com.example.warehouse.data.utils.DataStoreUtils
 import com.example.warehouse.viewmodel.common.NetworkResult
@@ -39,16 +39,12 @@ class ProductDetailViewModel @Inject constructor(
                     // "Branch" to NetworkConfig.BRANCH_ID
                 )
 
-                println("apiService getProductDetail")
-                val response = apiService.getProductDetail(paramMap)
+                val response =  ProductDetail.empty() //apiService.getProductDetail(paramMap)
                 _uiState.value = NetworkResult.Success(response)
-                println("apiService response: $response")
 
             } catch (e: Exception) {
                 _uiState.value = NetworkResult.Error("${e.message}")
             }
         }
     }
-
-
 }
